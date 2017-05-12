@@ -1,0 +1,13 @@
+{
+    "require": {
+        "stichoza/google-translate-php": "^3.2"
+    },
+    "autoload": {
+        "psr-4": {
+
+        },
+        "files": [
+            "helper.php"
+        ]
+    }
+}
