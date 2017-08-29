@@ -14,21 +14,36 @@ set_time_limit(0);
 
 $tr = new TranslateClient();
 $r = $tr->setUrlBase('http://translate.google.cn/translate_a/single');
-$tr->setSource('zh-CN');
+//语言源
+$source_lan = 'zh-CN';
+//设置语言源
+$tr->setSource($source_lan);
+//设置语言目录
 $dir = './lang';
-$names = getDirName($dir);
+//获取语言列表
+//$names = getDirName($dir);
+$names = langs();
+foreach ($names as $name => $value) {
+    $path = $dir.'/'.$value;
+    if( ! is_dir($path) ) {
+        mkdir($path, 0777, true);
+    }
 
-foreach ($names as $name) {
-
+    if( $name == $source_lan) {
+        continue;
+    }
+    //目标语言
     $tr->setTarget($name);
-
-    $r = scandir($dir.'/'.$name);
+    //获取源 语言列表文件
+    $r = scandir($dir.'/'.$source_lan);
     unset($r[0],$r[1]);
 
     foreach ($r as $rr) {
-//        $data = require $dir.'/'.$name.'/'.$rr; //php数组格式
-        $data = file_get_contents($dir.'/'.$name.'/'.$rr);//json格式
-        $data = json_decode($data, true);
+        //获取每个文件的内容
+        $data = require $dir.'/'.$source_lan.'/'.$rr; //php数组格式
+
+//        $data = file_get_contents($dir.'/'.$name.'/'.$rr);//json格式
+//        $data = json_decode($data, true);
 
         foreach ($data as &$v) {
             if(is_array($v)) {
@@ -47,10 +62,11 @@ foreach ($names as $name) {
             }
 
         }
-        echo $dir.'/'.$name.'/'.$rr.'-翻译完毕';
+
+        echo $path.'/'.$rr.'-The translation is complete';
         echo "\n";
-        saveFile($data,$dir.'/'.$name.'/'.$name.'.'.explode('.',$rr)[1],'json');
+        saveFile($data, $path.'/'.$rr, 'array');
     }
 }
-echo '全部翻译完毕！';
+echo 'The translation is complete';
 echo "\n";

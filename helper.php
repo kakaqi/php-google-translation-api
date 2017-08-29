@@ -43,3 +43,30 @@ function saveFile( array $data, string $file, string $type = 'array'){
 
     file_put_contents($file, $config);
 }
+
+/**语言列表
+ * @param string $key 语言标识
+ * @return array|mixed|string
+ */
+function langs($key='')
+{
+    $lang = [
+        'km' => 'cam',//高棉语
+        'my' => 'bur',//缅甸语
+        'ja' => 'ja-jp',//日语
+        'th' => 'th-th',//泰语
+        'vi' => 'vi-vn',//越南语
+        'en' => 'en',//英语
+        'de' => 'ge',//德语
+        'ko' => 'ko-kr',//韩语
+        'ms' => 'ma',//马来语
+        'tl' => 'ph',//菲律宾语
+        'zh-TW' => 'zh-hk',//中文繁体
+        'zh-CN' => 'zh-cn',//中文简体
+    ];
+    if( $key ) {
+        return isset($lang[$key]) ? $lang[$key] : $key;
+    }
+    return $lang;
+
+}
