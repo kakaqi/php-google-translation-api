@@ -5,6 +5,7 @@
  * Date: 2017/9/1
  * Time: 14:15
  */
+///usr/bin/sh /usr/local/src/silk-v3-decoder/converter_beta.sh /www/TranslationForGoogle/voice/2017090409564955.silk wav
 require 'vendor/autoload.php';
 use Stichoza\GoogleTranslate\TranslateClient;
 header("Access-Control-Allow-Origin: *");
@@ -12,20 +13,26 @@ header("Access-Control-Allow-Origin: *");
 !is_dir('./voice/') && @mkdir('./voice/',0777);
 
 $fileext = strtolower(substr(strrchr($_FILES['file']['name'],'.'),1,10));//获取文件扩展名
-$filename = date('Ymdhis',$this->time).mt_rand(10,99).'.'.$fileext; //生成文件名
+$filename = date('Ymdhis',time()).mt_rand(10,99);
 if (is_uploaded_file($_FILES['file']['tmp_name'])) {
-    move_uploaded_file($_FILES['file']['tmp_name'],'./voice/'.$filename);
+    move_uploaded_file($_FILES['file']['tmp_name'],'./voice/'.$filename.$fileext);
     @unlink($_FILES[$field]['tmp_name']);
 }
 
-$return = [
-    'code'=> 0,
-    'text' => 'success',
-    'result' => $filename
-];
-die(json_encode($return));
+$type = 'wav';
+$cmd = '/usr/bin/sh /usr/local/src/silk-v3-decoder/converter_beta.sh  /www/TranslationForGoogle/voice/'.$filename.$fileext.' '.$type;
+exec($cmd, $out);
+if(strpos($out[0],'[OK]') === false) {
+    $return = [
+        'code'=> 400,
+        'text' => 'fail',
+        'result' => ''
+    ];
+    die(json_encode($return));
+}
 
-define('AUDIO_FILE', "./voice/test.pcm");
+//define('AUDIO_FILE', "./voice/test.pcm");
+$audio_file = "./voice/".$filename.$type;
 $url = "http://vop.baidu.com/server_api";
 
 //put your params here
@@ -47,10 +54,10 @@ curl_close($ch);
 $response = json_decode($response, true);
 $token = $response['access_token'];
 
-$audio = file_get_contents(AUDIO_FILE);
+$audio = file_get_contents($audio_file);
 $base_data = base64_encode($audio);
 $array = array(
-    "format" => "pcm",
+    "format" => $type,
     "rate" => 8000,
     "channel" => 1,
     //"lan" => "zh",
@@ -58,7 +65,7 @@ $array = array(
     "cuid"=> $cuid,
     //"url" => "http://www.xxx.com/sample.pcm",
     //"callback" => "http://www.xxx.com/audio/callback",
-    "len" => filesize(AUDIO_FILE),
+    "len" => filesize($audio_file),
     "speech" => $base_data,
 );
 $json_array = json_encode($array);
