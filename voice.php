@@ -22,14 +22,6 @@ if (is_uploaded_file($_FILES['file']['tmp_name'])) {
 $type = 'wav';
 $cmd = '/usr/bin/sh /usr/local/src/silk-v3-decoder/converter_beta.sh  /www/TranslationForGoogle/voice/'.$filename.'.'.$fileext.' '.$type;
 exec($cmd, $out);
-if(strpos($out[0],'[OK]') === false) {
-    $return = [
-        'code'=> 400,
-        'text' => 'fail',
-        'result' => $out
-    ];
-    die(json_encode($return));
-}
 
 //define('AUDIO_FILE', "./voice/test.pcm");
 $audio_file = "./voice/".$filename.'.'.$type;
