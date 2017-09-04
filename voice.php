@@ -40,7 +40,7 @@ $response = $aipSpeech->asr(file_get_contents($audio_file), $type, 16000, array(
 ));
 
 $response = json_decode($response, true);
-file_put_contents('./test.txt',$response['result'][0]);
+file_put_contents('./voice/test.txt',$response['result'][0]);
 $return = [
     'code'=> 0,
     'text' => 'success',
