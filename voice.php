@@ -7,7 +7,6 @@
  */
 ///usr/bin/sh /usr/local/src/silk-v3-decoder/converter_beta.sh /www/TranslationForGoogle/voice/2017090409564955.silk wav
 require 'vendor/autoload.php';
-require_once 'AipSpeech.php';
 use Stichoza\GoogleTranslate\TranslateClient;
 header("Access-Control-Allow-Origin: *");
 
@@ -26,19 +25,59 @@ exec($cmd, $out);
 
 //define('AUDIO_FILE', "./voice/test.pcm");
 $audio_file = "./voice/".$filename.'.'.$type;
+$url = "http://vop.baidu.com/server_api";
 
-// 定义常量
-const APP_ID = '2227135';
-const API_KEY = 'aVwnyvWgNZGbhAP54ZA0mlPv';
-const SECRET_KEY = 'ZER0PDyDiDKybzCRntqERcrbyj1M5gkn';
+//put your params here
+$cuid = "2227135";
+$apiKey = "aVwnyvWgNZGbhAP54ZA0mlPv";
+$secretKey = "ZER0PDyDiDKybzCRntqERcrbyj1M5gkn";
 
-// 初始化AipSpeech对象
-$aipSpeech = new AipSpeech(APP_ID, API_KEY, API_SECRET);
-// 识别本地文件
-$response = $aipSpeech->asr(file_get_contents($audio_file), $type, 16000, array(
-    'lan' => 'zh',
-));
+$auth_url = "https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&client_id=".$apiKey."&client_secret=".$secretKey;
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $auth_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+$response = curl_exec($ch);
+if(curl_errno($ch))
+{
+    print curl_error($ch);
+}
+curl_close($ch);
+$response = json_decode($response, true);
+$token = $response['access_token'];
 
+$audio = file_get_contents($audio_file);
+$base_data = base64_encode($audio);
+$array = array(
+    "format" => $type,
+    "rate" => 8000,
+    "channel" => 1,
+    //"lan" => "zh",
+    "token" => $token,
+    "cuid"=> $cuid,
+    //"url" => "http://www.xxx.com/sample.pcm",
+    //"callback" => "http://www.xxx.com/audio/callback",
+    "len" => filesize($audio_file),
+    "speech" => $base_data,
+);
+$json_array = json_encode($array);
+$content_len = "Content-Length: ".strlen($json_array);
+$header = array ($content_len, 'Content-Type: application/json; charset=utf-8');
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $json_array);
+$response = curl_exec($ch);
+if(curl_errno($ch))
+{
+    print curl_error($ch);
+}
+curl_close($ch);
 $response = json_decode($response, true);
 file_put_contents('./voice/test.txt',$response['result'][0]);
 $return = [
