@@ -79,6 +79,12 @@ if(curl_errno($ch))
 }
 curl_close($ch);
 $response = json_decode($response, true);
+$return = [
+    'code'=> 0,
+    'text' => 'success',
+    'result' => $response
+];
+die(json_encode($return));
 if($response['err_no'] == 0) {
     $get = $_GET;
     $source_lan = isset($get['source_lan']) ? $get['source_lan'] : 'zh-CN';
