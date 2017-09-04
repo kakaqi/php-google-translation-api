@@ -15,24 +15,24 @@ header("Access-Control-Allow-Origin: *");
 $fileext = strtolower(substr(strrchr($_FILES['file']['name'],'.'),1,10));//获取文件扩展名
 $filename = date('Ymdhis',time()).mt_rand(10,99);
 if (is_uploaded_file($_FILES['file']['tmp_name'])) {
-    move_uploaded_file($_FILES['file']['tmp_name'],'./voice/'.$filename.$fileext);
+    move_uploaded_file($_FILES['file']['tmp_name'],'./voice/'.$filename.'.'.$fileext);
     @unlink($_FILES[$field]['tmp_name']);
 }
 
 $type = 'wav';
-$cmd = '/usr/bin/sh /usr/local/src/silk-v3-decoder/converter_beta.sh  /www/TranslationForGoogle/voice/'.$filename.$fileext.' '.$type;
+$cmd = '/usr/bin/sh /usr/local/src/silk-v3-decoder/converter_beta.sh  /www/TranslationForGoogle/voice/'.$filename.'.'.$fileext.' '.$type;
 exec($cmd, $out);
 if(strpos($out[0],'[OK]') === false) {
     $return = [
         'code'=> 400,
         'text' => 'fail',
-        'result' => ''
+        'result' => $out
     ];
     die(json_encode($return));
 }
 
 //define('AUDIO_FILE', "./voice/test.pcm");
-$audio_file = "./voice/".$filename.$type;
+$audio_file = "./voice/".$filename.'.'.$type;
 $url = "http://vop.baidu.com/server_api";
 
 //put your params here
