@@ -82,7 +82,7 @@ $response = json_decode($response, true);
 $return = [
     'code'=> 0,
     'text' => 'success',
-    'result' => $response
+    'result' => $response['result'][0]
 ];
 die(json_encode($return));
 if($response['err_no'] == 0) {
