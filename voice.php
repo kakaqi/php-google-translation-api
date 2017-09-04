@@ -8,9 +8,10 @@
 require 'vendor/autoload.php';
 use Stichoza\GoogleTranslate\TranslateClient;
 header("Access-Control-Allow-Origin: *");
-var_export($_FILES);die;
-$fileext = $this->fileext($_FILES['file']['name']); //获取文件扩展名
 
+!is_dir('./voice/') && @mkdir('./voice/',0777);
+
+$fileext = strtolower(substr(strrchr($_FILES['file']['name'],'.'),1,10));//获取文件扩展名
 $filename = date('Ymdhis',$this->time).mt_rand(10,99).'.'.$fileext; //生成文件名
 if (is_uploaded_file($_FILES['file']['tmp_name'])) {
     move_uploaded_file($_FILES['file']['tmp_name'],'./voice/'.$filename);
@@ -20,7 +21,7 @@ if (is_uploaded_file($_FILES['file']['tmp_name'])) {
 $return = [
     'code'=> 0,
     'text' => 'success',
-    'result' => ''
+    'result' => $filename
 ];
 die(json_encode($return));
 
